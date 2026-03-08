@@ -3,133 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Quản lý giao dịch</title>
 
 <style>
 
-*{box-sizing:border-box}
-
 body{
-font-family:Arial;
-background:#f4f6f8;
+font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+background:#f5f5f5;
 margin:0;
-padding:15px;
-}
-
-h1{
-text-align:center;
-margin-bottom:20px;
+padding:20px;
 }
 
 .card{
 background:white;
-padding:16px;
-border-radius:14px;
-margin-bottom:15px;
-box-shadow:0 3px 10px rgba(0,0,0,0.08);
-}
-
-/* stats */
-
-.stat-card{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-
-.stat-box{
-background:#f8fafc;
-padding:14px;
-border-radius:12px;
-display:flex;
-justify-content:space-between;
-font-weight:600;
-}
-
-.section-title{
-font-weight:700;
-font-size:18px;
-margin-bottom:12px;
-}
-
-.person{
-background:#f9fafb;
-padding:12px;
-border-radius:12px;
-margin-bottom:10px;
-}
-
-.stat-row{
-display:flex;
-justify-content:space-between;
-padding:3px 0;
-}
-
-/* form */
-
-input,select{
-width:100%;
-padding:12px;
-margin-top:10px;
+padding:15px;
 border-radius:10px;
-border:1px solid #ddd;
-font-size:16px;
+margin-bottom:15px;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
 }
 
 button{
-width:100%;
-padding:13px;
-margin-top:12px;
+padding:12px;
 border:none;
-border-radius:10px;
-background:#2ecc71;
-color:white;
+border-radius:8px;
 font-size:16px;
-font-weight:bold;
-}
-
-.delete{
-background:#e74c3c;
-margin-top:6px;
+margin-top:8px;
+width:100%;
 }
 
 .fly{
-background:#3498db;
-margin-top:6px;
-}
-
-.item{
-border-bottom:1px solid #eee;
-padding:10px 0;
-}
-
-/* popup */
-
-.popup{
-position:fixed;
-top:-100px;
-left:50%;
-transform:translateX(-50%);
-background:#333;
+background:#3b82f6;
 color:white;
-padding:12px 20px;
-border-radius:10px;
-font-size:15px;
-transition:0.4s;
-z-index:999;
 }
 
-.popup.show{
-top:20px;
+.delete{
+background:#ef4444;
+color:white;
 }
 
-.popup.success{
-background:#2ecc71;
+/* IOS POPUP */
+
+.ios-popup{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:9999;
 }
 
-.popup.error{
-background:#e74c3c;
+.ios-box{
+background:white;
+width:280px;
+border-radius:14px;
+overflow:hidden;
+text-align:center;
+}
+
+.ios-text{
+padding:20px;
+font-size:17px;
+}
+
+.ios-buttons{
+display:flex;
+border-top:1px solid #eee;
+}
+
+.ios-buttons button{
+flex:1;
+border:none;
+background:white;
+padding:14px;
+font-size:16px;
+border-radius:0;
+}
+
+.cancel{
+color:#007AFF;
+border-right:1px solid #eee;
+}
+
+.confirm{
+color:#ff3b30;
+font-weight:600;
 }
 
 </style>
@@ -137,250 +98,37 @@ background:#e74c3c;
 
 <body>
 
-<div id="popup" class="popup"></div>
-
-<h1>💼 Quản lý giao dịch</h1>
-
-<div class="card">
-
-<div class="stat-card">
-
-<div class="stat-box">
-<span>💰 Tổng vốn</span>
-<b id="tongVon">0</b>
-</div>
-
-<div class="stat-box">
-<span>📈 Tổng lãi</span>
-<b id="tongLai">0</b>
-</div>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="section-title">👥 Vốn & Lãi mỗi người</div>
-
-<div id="nguoiStats"></div>
-
-</div>
-
-<div class="card">
-
-<div class="section-title">📊 Thống kê theo acc</div>
-
-<div id="accStats"></div>
-
-</div>
-
-<div class="card">
-
-<input id="acc" placeholder="🔑 Mã acc">
-
-<input id="von" type="number" placeholder="💰 Vốn (200 = 200000)">
-
-<input id="lai" type="number" placeholder="📈 Lãi (50 = 50000)">
-
-<select id="status">
-<option value="chua">⌛ Chưa bay</option>
-<option value="bay">✈️ Đã bay</option>
-</select>
-
-<button onclick="them()">➕ Thêm giao dịch</button>
-
-</div>
-
-<div class="card">
-
-<div class="section-title">📜 Danh sách giao dịch</div>
+<h2>Danh sách giao dịch</h2>
 
 <div id="list"></div>
+
+<!-- IOS POPUP -->
+<div id="iosPopup" class="ios-popup">
+
+<div class="ios-box">
+
+<div class="ios-text">
+Bạn có chắc muốn xoá giao dịch này?
+</div>
+
+<div class="ios-buttons">
+<button class="cancel" onclick="closePopup()">Huỷ</button>
+<button class="confirm" onclick="confirmDelete()">Xoá</button>
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-let transactions = JSON.parse(localStorage.getItem("data")) || []
+let transactions=[
+{acc:"702",von:200000,lai:500000,trangthai:"Đã bay",ngay:"3/8/2026"}
+]
 
-function save(){
-localStorage.setItem("data",JSON.stringify(transactions))
-}
-
-/* popup */
-
-function popup(msg,type="success"){
-
-let p=document.getElementById("popup")
-
-p.innerText=msg
-p.className="popup show "+type
-
-setTimeout(()=>{
-p.classList.remove("show")
-},2500)
-
-}
-
-/* thêm 000 */
-
-function money(v){
-return Number(v)*1000
-}
-
-function them(){
-
-let acc=document.getElementById("acc").value.trim()
-let von=money(document.getElementById("von").value)
-let lai=money(document.getElementById("lai").value)
-let status=document.getElementById("status").value
-
-if(!acc){
-popup("Vui lòng nhập mã acc","error")
-return
-}
-
-if(transactions.some(t=>t.acc===acc)){
-popup("⚠️ Mã acc đã tồn tại","error")
-return
-}
-
-let ngayBay=null
-
-if(status==="bay"){
-ngayBay=new Date().toLocaleString()
-}
-
-transactions.push({
-acc,
-von,
-lai,
-status,
-ngayBay
-})
-
-save()
-render()
-
-popup("✅ Thêm giao dịch thành công")
-
-document.getElementById("acc").value=""
-document.getElementById("von").value=""
-document.getElementById("lai").value=""
-
-}
-
-function xoa(i){
-
-if(!confirm("Xoá giao dịch này?")) return
-
-transactions.splice(i,1)
-
-save()
-render()
-
-popup("🗑 Đã xoá giao dịch")
-
-}
-
-function doiTrangThai(i){
-
-if(transactions[i].status==="chua"){
-
-transactions[i].status="bay"
-transactions[i].ngayBay=new Date().toLocaleString()
-
-popup("✈️ Đã chuyển sang trạng thái bay")
-
-}
-
-save()
-render()
-
-}
+let deleteIndex=null
 
 function render(){
-
-let tongVon=0
-let tongLai=0
-
-let accStats={}
-
-transactions.forEach(t=>{
-
-tongVon+=t.von
-
-if(!accStats[t.acc]){
-accStats[t.acc]={von:0,lai:0}
-}
-
-accStats[t.acc].von+=t.von
-
-if(t.status==="bay"){
-tongLai+=t.lai
-accStats[t.acc].lai+=t.lai
-}
-
-})
-
-document.getElementById("tongVon").innerText=tongVon
-document.getElementById("tongLai").innerText=tongLai
-
-/* chia đôi */
-
-let nguoiVon=tongVon/2
-let nguoiLai=tongLai/2
-
-document.getElementById("nguoiStats").innerHTML=`
-
-<div class="person">
-
-<div class="stat-row">
-<span>💰 Vốn mỗi người</span>
-<span>${nguoiVon}</span>
-</div>
-
-<div class="stat-row">
-<span>📈 Lãi mỗi người</span>
-<span>${nguoiLai}</span>
-</div>
-
-</div>
-
-`
-
-/* acc stats */
-
-let htmlAcc=""
-
-for(let acc in accStats){
-
-htmlAcc+=`
-
-<div class="person">
-
-<b>Acc ${acc}</b>
-
-<div class="stat-row">
-<span>💰 Vốn</span>
-<span>${accStats[acc].von}</span>
-</div>
-
-<div class="stat-row">
-<span>📈 Lãi</span>
-<span>${accStats[acc].lai}</span>
-</div>
-
-</div>
-
-`
-
-}
-
-document.getElementById("accStats").innerHTML=htmlAcc
-
-/* list */
 
 let html=""
 
@@ -388,17 +136,15 @@ transactions.forEach((t,i)=>{
 
 html+=`
 
-<div class="item">
+<div class="card">
 
-<b>Mã acc:</b> ${t.acc}<br>
-💰 Vốn: ${t.von}<br>
-📈 Lãi: ${t.lai}<br>
-📊 Trạng thái: ${t.status==="bay"?"✈️ Đã bay":"⌛ Chưa bay"}<br>
-📅 Ngày bay: ${t.ngayBay||"-"}
+<div><b>Mã acc:</b> ${t.acc}</div>
+<div>💰 Vốn: ${t.von}</div>
+<div>📈 Lãi: ${t.lai}</div>
+<div>✈️ Trạng thái: ${t.trangthai}</div>
+<div>📅 Ngày bay: ${t.ngay}</div>
 
-<button class="fly" onclick="doiTrangThai(${i})">✈️ Đổi thành đã bay</button>
-
-<button class="delete" onclick="xoa(${i})">🗑 Xoá</button>
+<button class="delete" onclick="showDeletePopup(${i})">🗑 Xoá</button>
 
 </div>
 
@@ -407,6 +153,27 @@ html+=`
 })
 
 document.getElementById("list").innerHTML=html
+
+}
+
+function showDeletePopup(index){
+deleteIndex=index
+document.getElementById("iosPopup").style.display="flex"
+}
+
+function closePopup(){
+document.getElementById("iosPopup").style.display="none"
+}
+
+function confirmDelete(){
+
+if(deleteIndex!==null){
+
+transactions.splice(deleteIndex,1)
+render()
+closePopup()
+
+}
 
 }
 
