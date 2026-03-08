@@ -48,8 +48,6 @@ from{opacity:0;transform:translateY(10px)}
 to{opacity:1;transform:translateY(0)}
 }
 
-/* INPUT FIX LỆCH */
-
 .inputBox{
 display:flex;
 align-items:center;
@@ -96,10 +94,18 @@ cursor:pointer;
 background:#2ecc71;
 color:white;
 width:100%;
+margin-top:5px;
 }
 
 .deleteBtn{
 background:#e74c3c;
+color:white;
+width:100%;
+margin-top:8px;
+}
+
+.bayBtn{
+background:#3498db;
 color:white;
 width:100%;
 margin-top:8px;
@@ -193,8 +199,8 @@ color:white;
 </div>
 
 <select id="trangThai">
-<option value="Chưa bay">⏳ Chưa bay</option>
-<option value="Đã bay">🚀 Đã bay</option>
+<option value="Chưa bay">Chưa bay</option>
+<option value="Đã bay">Đã bay</option>
 </select>
 
 <button class="addBtn" onclick="them()">
@@ -239,7 +245,10 @@ let tongLai=0
 data.forEach((g,i)=>{
 
 tongVon+=Number(g.von)
+
+if(g.trangThai=="Đã bay"){
 tongLai+=Number(g.lai)
+}
 
 list.innerHTML+=`
 
@@ -249,10 +258,16 @@ list.innerHTML+=`
 <b>Vốn:</b> ${g.von}<br>
 <b>Lãi:</b> ${g.lai}<br>
 <b>Ngày thu:</b> ${g.ngay}<br>
+
 <b>Trạng thái:</b>
 <span class="${g.trangThai=='Đã bay'?'statusBay':'statusChua'}">
 ${g.trangThai}
 </span>
+
+${g.trangThai=="Chưa bay"
+? `<button class="bayBtn" onclick="bay(${i})">🚀 Đánh dấu đã bay</button>`
+: `<br><b>Ngày bay:</b> ${g.ngayBay}`
+}
 
 <button class="deleteBtn" onclick="hienPopup(${i})">
 <i class="fa-solid fa-trash"></i> Xoá
@@ -281,7 +296,14 @@ alert("Thiếu thông tin")
 return
 }
 
-data.push({maAcc,von,lai,ngay,trangThai})
+data.push({
+maAcc,
+von,
+lai,
+ngay,
+trangThai,
+ngayBay:""
+})
 
 save()
 render()
@@ -290,6 +312,17 @@ document.getElementById("maAcc").value=""
 document.getElementById("von").value=""
 document.getElementById("lai").value=""
 document.getElementById("ngayThu").value=""
+
+}
+
+function bay(i){
+
+data[i].trangThai="Đã bay"
+
+data[i].ngayBay=new Date().toISOString().split("T")[0]
+
+save()
+render()
 
 }
 
