@@ -8,9 +8,7 @@
 
 <style>
 
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
 font-family:Arial;
@@ -32,7 +30,7 @@ margin-bottom:15px;
 box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
-/* ===== Stats ===== */
+/* stats */
 
 .stat-card{
 display:grid;
@@ -46,7 +44,6 @@ padding:14px;
 border-radius:12px;
 display:flex;
 justify-content:space-between;
-align-items:center;
 font-weight:600;
 }
 
@@ -63,18 +60,13 @@ border-radius:12px;
 margin-bottom:10px;
 }
 
-.person-name{
-font-weight:700;
-margin-bottom:6px;
-}
-
 .stat-row{
 display:flex;
 justify-content:space-between;
 padding:3px 0;
 }
 
-/* ===== Form ===== */
+/* form */
 
 input,select{
 width:100%;
@@ -112,10 +104,40 @@ border-bottom:1px solid #eee;
 padding:10px 0;
 }
 
+/* popup */
+
+.popup{
+position:fixed;
+top:-100px;
+left:50%;
+transform:translateX(-50%);
+background:#333;
+color:white;
+padding:12px 20px;
+border-radius:10px;
+font-size:15px;
+transition:0.4s;
+z-index:999;
+}
+
+.popup.show{
+top:20px;
+}
+
+.popup.success{
+background:#2ecc71;
+}
+
+.popup.error{
+background:#e74c3c;
+}
+
 </style>
 </head>
 
 <body>
+
+<div id="popup" class="popup"></div>
 
 <h1>💼 Quản lý giao dịch</h1>
 
@@ -157,9 +179,9 @@ padding:10px 0;
 
 <input id="acc" placeholder="🔑 Mã acc">
 
-<input id="von" type="number" placeholder="💰 Vốn (vd: 200 = 200000)">
+<input id="von" type="number" placeholder="💰 Vốn (200 = 200000)">
 
-<input id="lai" type="number" placeholder="📈 Lãi (vd: 50 = 50000)">
+<input id="lai" type="number" placeholder="📈 Lãi (50 = 50000)">
 
 <select id="status">
 <option value="chua">⌛ Chưa bay</option>
@@ -186,27 +208,41 @@ function save(){
 localStorage.setItem("data",JSON.stringify(transactions))
 }
 
-/* thêm 3 số 0 */
-function convertMoney(num){
-return Number(num) * 1000
+/* popup */
+
+function popup(msg,type="success"){
+
+let p=document.getElementById("popup")
+
+p.innerText=msg
+p.className="popup show "+type
+
+setTimeout(()=>{
+p.classList.remove("show")
+},2500)
+
+}
+
+/* thêm 000 */
+
+function money(v){
+return Number(v)*1000
 }
 
 function them(){
 
 let acc=document.getElementById("acc").value.trim()
-let von=convertMoney(document.getElementById("von").value)
-let lai=convertMoney(document.getElementById("lai").value)
+let von=money(document.getElementById("von").value)
+let lai=money(document.getElementById("lai").value)
 let status=document.getElementById("status").value
 
 if(!acc){
-alert("Vui lòng nhập mã acc")
+popup("Vui lòng nhập mã acc","error")
 return
 }
 
-/* check trùng acc */
-
 if(transactions.some(t=>t.acc===acc)){
-alert("⚠️ Mã acc đã tồn tại!")
+popup("⚠️ Mã acc đã tồn tại","error")
 return
 }
 
@@ -227,6 +263,8 @@ ngayBay
 save()
 render()
 
+popup("✅ Thêm giao dịch thành công")
+
 document.getElementById("acc").value=""
 document.getElementById("von").value=""
 document.getElementById("lai").value=""
@@ -242,6 +280,8 @@ transactions.splice(i,1)
 save()
 render()
 
+popup("🗑 Đã xoá giao dịch")
+
 }
 
 function doiTrangThai(i){
@@ -250,6 +290,8 @@ if(transactions[i].status==="chua"){
 
 transactions[i].status="bay"
 transactions[i].ngayBay=new Date().toLocaleString()
+
+popup("✈️ Đã chuyển sang trạng thái bay")
 
 }
 
@@ -264,7 +306,6 @@ let tongVon=0
 let tongLai=0
 
 let accStats={}
-let nguoiStats={}
 
 transactions.forEach(t=>{
 
@@ -281,52 +322,35 @@ tongLai+=t.lai
 accStats[t.acc].lai+=t.lai
 }
 
-if(!nguoiStats[t.acc]){
-nguoiStats[t.acc]={von:0,lai:0}
-}
-
-nguoiStats[t.acc].von+=t.von
-
-if(t.status==="bay"){
-nguoiStats[t.acc].lai+=t.lai
-}
-
 })
 
 document.getElementById("tongVon").innerText=tongVon
 document.getElementById("tongLai").innerText=tongLai
 
-/* stats người */
+/* chia đôi */
 
-let htmlNguoi=""
+let nguoiVon=tongVon/2
+let nguoiLai=tongLai/2
 
-for(let acc in nguoiStats){
-
-htmlNguoi+=`
+document.getElementById("nguoiStats").innerHTML=`
 
 <div class="person">
 
-<div class="person-name">${acc}</div>
-
 <div class="stat-row">
-<span>💰 Vốn</span>
-<span>${nguoiStats[acc].von}</span>
+<span>💰 Vốn mỗi người</span>
+<span>${nguoiVon}</span>
 </div>
 
 <div class="stat-row">
-<span>📈 Lãi</span>
-<span>${nguoiStats[acc].lai}</span>
+<span>📈 Lãi mỗi người</span>
+<span>${nguoiLai}</span>
 </div>
 
 </div>
 
 `
 
-}
-
-document.getElementById("nguoiStats").innerHTML=htmlNguoi
-
-/* stats acc */
+/* acc stats */
 
 let htmlAcc=""
 
@@ -336,7 +360,7 @@ htmlAcc+=`
 
 <div class="person">
 
-<div class="person-name">Acc ${acc}</div>
+<b>Acc ${acc}</b>
 
 <div class="stat-row">
 <span>💰 Vốn</span>
