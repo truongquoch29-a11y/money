@@ -2,17 +2,21 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Công cụ tính vốn và lãi</title>
+<title>Tính vốn và lãi</title>
 
 <style>
 body{
-font-family: Arial;
-background:#f5f5f5;
+font-family: Arial, sans-serif;
+background:#f2f2f2;
 padding:20px;
 }
 
+h2{
+margin-bottom:10px;
+}
+
 table{
-border-collapse: collapse;
+border-collapse:collapse;
 width:100%;
 background:white;
 }
@@ -25,12 +29,12 @@ text-align:center;
 
 input{
 width:100px;
-padding:5px;
+padding:4px;
 }
 
 button{
-padding:8px 15px;
-margin:10px 0;
+padding:8px 12px;
+margin-bottom:10px;
 cursor:pointer;
 }
 
@@ -43,11 +47,12 @@ font-size:18px;
 
 <body>
 
-<h2>Công cụ tính vốn / bán / lãi</h2>
+<h2>Công cụ tính vốn - bán - lãi</h2>
 
 <button onclick="addRow()">Thêm giao dịch</button>
 
 <table id="table">
+<thead>
 <tr>
 <th>Acc</th>
 <th>Giá vốn</th>
@@ -55,6 +60,9 @@ font-size:18px;
 <th>Lãi</th>
 <th>Lãi mỗi người</th>
 </tr>
+</thead>
+<tbody>
+</tbody>
 </table>
 
 <div class="total">
@@ -68,54 +76,30 @@ font-size:18px;
 
 function addRow(){
 
-let table=document.getElementById("table")
+const tbody=document.querySelector("#table tbody")
 
-let row=table.insertRow()
+const row=document.createElement("tr")
 
 row.innerHTML=`
 <td><input></td>
 <td><input type="number" oninput="tinh()"></td>
 <td><input type="number" oninput="tinh()"></td>
 <td class="lai">0</td>
-<td class="chiadoi">0</td>
+<td class="chia">0</td>
 `
+
+tbody.appendChild(row)
 
 }
 
 function tinh(){
 
-let rows=document.querySelectorAll("#table tr")
+const rows=document.querySelectorAll("#table tbody tr")
 
 let tongvon=0
 let tongban=0
 let tonglai=0
 
-rows.forEach((r,i)=>{
+rows.forEach(row=>{
 
-if(i==0)return
-
-let von=r.cells[1].children[0].value*1||0
-let ban=r.cells[2].children[0].value*1||0
-
-let lai=ban-von
-
-r.cells[3].innerText=lai
-r.cells[4].innerText=lai/2
-
-tongvon+=von
-tongban+=ban
-tonglai+=lai
-
-})
-
-document.getElementById("tongvon").innerText=tongvon
-document.getElementById("tongban").innerText=tongban
-document.getElementById("tonglai").innerText=tonglai
-document.getElementById("laimoinguoi").innerText=tonglai/2
-
-}
-
-</script>
-
-</body>
-</html>
+let von=row.cells[1].children[0].value
