@@ -48,13 +48,40 @@ from{opacity:0;transform:translateY(10px)}
 to{opacity:1;transform:translateY(0)}
 }
 
-input,select{
+/* INPUT FIX LỆCH */
+
+.inputBox{
+display:flex;
+align-items:center;
+border:1px solid #ddd;
+border-radius:10px;
+padding:10px;
+margin:6px 0;
+background:white;
+}
+
+.inputBox i{
+margin-right:10px;
+color:#888;
+font-size:18px;
+}
+
+.inputBox input{
+border:none;
+outline:none;
+font-size:16px;
+flex:1;
+background:transparent;
+}
+
+select{
 width:100%;
 padding:10px;
-margin:5px 0;
+margin:6px 0;
 font-size:16px;
-border-radius:8px;
+border-radius:10px;
 border:1px solid #ddd;
+background:white;
 }
 
 button{
@@ -145,13 +172,25 @@ color:white;
 
 <div class="card">
 
-<input id="maAcc" placeholder="🔑 Mã acc">
+<div class="inputBox">
+<i class="fa-solid fa-key"></i>
+<input id="maAcc" placeholder="Mã acc">
+</div>
 
-<input id="von" type="number" placeholder="💰 Vốn">
+<div class="inputBox">
+<i class="fa-solid fa-coins"></i>
+<input id="von" type="number" placeholder="Vốn">
+</div>
 
-<input id="lai" type="number" placeholder="📈 Lãi">
+<div class="inputBox">
+<i class="fa-solid fa-chart-line"></i>
+<input id="lai" type="number" placeholder="Lãi">
+</div>
 
+<div class="inputBox">
+<i class="fa-solid fa-calendar"></i>
 <input id="ngayThu" type="date">
+</div>
 
 <select id="trangThai">
 <option value="Chưa bay">⏳ Chưa bay</option>
@@ -167,7 +206,6 @@ color:white;
 <div id="list"></div>
 
 </div>
-
 
 <div class="popup" id="popup">
 <div class="popupBox">
@@ -207,10 +245,10 @@ list.innerHTML+=`
 
 <div class="card">
 
-<b>🔑 Mã acc:</b> ${g.maAcc}<br>
-<b>💰 Vốn:</b> ${g.von}<br>
-<b>📈 Lãi:</b> ${g.lai}<br>
-<b>📅 Ngày thu:</b> ${g.ngay}<br>
+<b>Mã acc:</b> ${g.maAcc}<br>
+<b>Vốn:</b> ${g.von}<br>
+<b>Lãi:</b> ${g.lai}<br>
+<b>Ngày thu:</b> ${g.ngay}<br>
 <b>Trạng thái:</b>
 <span class="${g.trangThai=='Đã bay'?'statusBay':'statusChua'}">
 ${g.trangThai}
@@ -248,9 +286,10 @@ data.push({maAcc,von,lai,ngay,trangThai})
 save()
 render()
 
-maAcc.value=""
-von.value=""
-lai.value=""
+document.getElementById("maAcc").value=""
+document.getElementById("von").value=""
+document.getElementById("lai").value=""
+document.getElementById("ngayThu").value=""
 
 }
 
