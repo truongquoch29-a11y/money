@@ -104,7 +104,7 @@ border-bottom:1px solid #eee;
 padding:10px 0;
 }
 
-/* popup */
+/* popup thông báo */
 
 .popup{
 position:fixed;
@@ -130,6 +130,57 @@ background:#2ecc71;
 
 .popup.error{
 background:#e74c3c;
+}
+
+/* popup xoá */
+
+.deletePopup{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:2000;
+}
+
+.deleteBox{
+background:white;
+width:280px;
+border-radius:14px;
+text-align:center;
+overflow:hidden;
+}
+
+.deleteText{
+padding:20px;
+font-size:17px;
+}
+
+.deleteBtns{
+display:flex;
+border-top:1px solid #eee;
+}
+
+.deleteBtns button{
+flex:1;
+border:none;
+background:white;
+padding:14px;
+font-size:16px;
+}
+
+.cancelBtn{
+color:#007AFF;
+border-right:1px solid #eee;
+}
+
+.confirmBtn{
+color:#ff3b30;
+font-weight:bold;
 }
 
 </style>
@@ -200,15 +251,38 @@ background:#e74c3c;
 
 </div>
 
+<!-- popup xoá -->
+
+<div id="deletePopup" class="deletePopup">
+
+<div class="deleteBox">
+
+<div class="deleteText">
+Bạn có chắc muốn xoá giao dịch này?
+</div>
+
+<div class="deleteBtns">
+
+<button class="cancelBtn" onclick="dongPopup()">Huỷ</button>
+
+<button class="confirmBtn" onclick="xacNhanXoa()">Xoá</button>
+
+</div>
+
+</div>
+
+</div>
+
 <script>
 
 let transactions = JSON.parse(localStorage.getItem("data")) || []
+let deleteIndex = null
 
 function save(){
 localStorage.setItem("data",JSON.stringify(transactions))
 }
 
-/* popup */
+/* popup thông báo */
 
 function popup(msg,type="success"){
 
@@ -246,6 +320,8 @@ popup("⚠️ Mã acc đã tồn tại","error")
 return
 }
 
+let thu=new Date().toLocaleString()
+
 let ngayBay=null
 
 if(status==="bay"){
@@ -257,6 +333,7 @@ acc,
 von,
 lai,
 status,
+thu,
 ngayBay
 })
 
@@ -271,14 +348,29 @@ document.getElementById("lai").value=""
 
 }
 
+/* popup xoá */
+
 function xoa(i){
 
-if(!confirm("Xoá giao dịch này?")) return
+deleteIndex=i
+document.getElementById("deletePopup").style.display="flex"
 
-transactions.splice(i,1)
+}
+
+function dongPopup(){
+
+document.getElementById("deletePopup").style.display="none"
+
+}
+
+function xacNhanXoa(){
+
+transactions.splice(deleteIndex,1)
 
 save()
 render()
+
+dongPopup()
 
 popup("🗑 Đã xoá giao dịch")
 
@@ -327,8 +419,6 @@ accStats[t.acc].lai+=t.lai
 document.getElementById("tongVon").innerText=tongVon
 document.getElementById("tongLai").innerText=tongLai
 
-/* chia đôi */
-
 let nguoiVon=tongVon/2
 let nguoiLai=tongLai/2
 
@@ -349,8 +439,6 @@ document.getElementById("nguoiStats").innerHTML=`
 </div>
 
 `
-
-/* acc stats */
 
 let htmlAcc=""
 
@@ -380,8 +468,6 @@ htmlAcc+=`
 
 document.getElementById("accStats").innerHTML=htmlAcc
 
-/* list */
-
 let html=""
 
 transactions.forEach((t,i)=>{
@@ -393,6 +479,7 @@ html+=`
 <b>Mã acc:</b> ${t.acc}<br>
 💰 Vốn: ${t.von}<br>
 📈 Lãi: ${t.lai}<br>
+⏰ Thu acc: ${t.thu}<br>
 📊 Trạng thái: ${t.status==="bay"?"✈️ Đã bay":"⌛ Chưa bay"}<br>
 📅 Ngày bay: ${t.ngayBay||"-"}
 
