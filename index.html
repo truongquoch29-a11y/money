@@ -5,40 +5,13 @@
 <title>Quản lý acc</title>
 
 <style>
-
-body{
-font-family:Arial;
-background:#f2f2f2;
-padding:20px;
-}
-
-table{
-border-collapse:collapse;
-width:100%;
-background:white;
-}
-
-th,td{
-border:1px solid #ccc;
-padding:8px;
-text-align:center;
-}
-
-input,select{
-padding:4px;
-}
-
-button{
-padding:8px 12px;
-margin-bottom:10px;
-cursor:pointer;
-}
-
-.total{
-margin-top:20px;
-font-size:18px;
-}
-
+body{font-family:Arial;background:#f2f2f2;padding:20px}
+table{border-collapse:collapse;width:100%;background:white}
+th,td{border:1px solid #ccc;padding:8px;text-align:center}
+input,select{padding:4px}
+button{padding:8px 12px;margin-bottom:10px;cursor:pointer}
+.total{margin-top:20px;font-size:18px}
+.xoa{background:#ff4d4d;color:white;border:none;padding:5px 10px;cursor:pointer}
 </style>
 </head>
 
@@ -49,9 +22,7 @@ font-size:18px;
 <button onclick="addRow()">Thêm giao dịch</button>
 
 <table id="table">
-
 <thead>
-
 <tr>
 <th>Mã acc</th>
 <th>Ngày thu</th>
@@ -60,22 +31,18 @@ font-size:18px;
 <th>Giá bán</th>
 <th>Lãi</th>
 <th>Lãi mỗi người</th>
+<th>Xoá</th>
 </tr>
-
 </thead>
 
-<tbody>
-</tbody>
-
+<tbody></tbody>
 </table>
 
 <div class="total">
-
 <p>Tổng vốn: <span id="tongvon">0</span></p>
 <p>Tổng bán: <span id="tongban">0</span></p>
 <p>Tổng lãi: <span id="tonglai">0</span></p>
 <p>Lãi mỗi người: <span id="laimoinguoi">0</span></p>
-
 </div>
 
 <script>
@@ -87,9 +54,7 @@ function addRow(){
 const row=document.createElement("tr")
 
 row.innerHTML=`
-
 <td><input placeholder="ACC001"></td>
-
 <td><input type="date"></td>
 
 <td>
@@ -101,13 +66,12 @@ row.innerHTML=`
 </td>
 
 <td><input type="number"></td>
-
 <td><input type="number"></td>
 
 <td class="lai">0</td>
-
 <td class="chia">0</td>
 
+<td><button class="xoa">X</button></td>
 `
 
 tbody.appendChild(row)
@@ -115,6 +79,11 @@ tbody.appendChild(row)
 row.querySelectorAll("input").forEach(i=>{
 i.addEventListener("input",tinh)
 })
+
+row.querySelector(".xoa").onclick=function(){
+row.remove()
+tinh()
+}
 
 }
 
