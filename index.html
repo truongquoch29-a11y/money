@@ -3,146 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Quản lý giao dịch</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 
 body{
 font-family:Arial;
-background:#f4f6fb;
+background:#f2f2f2;
 margin:0;
-padding:10px;
+padding:20px;
 }
 
-.container{
-max-width:500px;
-margin:auto;
-}
-
-h2{
+h1{
 text-align:center;
-}
-
-.summary{
-background:white;
-padding:15px;
-border-radius:12px;
-margin-bottom:10px;
-box-shadow:0 3px 8px rgba(0,0,0,0.1);
 }
 
 .card{
 background:white;
 padding:15px;
-border-radius:12px;
-margin-bottom:10px;
-box-shadow:0 3px 8px rgba(0,0,0,0.1);
-}
-
-.inputBox{
-display:flex;
-align-items:center;
-border:1px solid #ddd;
+margin-bottom:15px;
 border-radius:10px;
-padding:10px;
-margin:6px 0;
-background:white;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 
-.inputBox i{
-margin-right:10px;
-color:#888;
-}
-
-.inputBox input{
-border:none;
-outline:none;
-flex:1;
-font-size:16px;
-}
-
-select{
+input,select{
 width:100%;
 padding:10px;
-border-radius:10px;
-border:1px solid #ddd;
-margin:6px 0;
+margin-top:10px;
+border-radius:8px;
+border:1px solid #ccc;
 }
 
 button{
-border:none;
+width:100%;
 padding:12px;
+margin-top:10px;
+border:none;
 border-radius:8px;
-font-size:16px;
-cursor:pointer;
-}
-
-.addBtn{
 background:#2ecc71;
 color:white;
-width:100%;
+font-size:16px;
 }
 
-.deleteBtn{
+.item{
+border-bottom:1px solid #eee;
+padding:10px 0;
+}
+
+.delete{
 background:#e74c3c;
-color:white;
-width:100%;
-margin-top:8px;
-}
-
-.bayBtn{
-background:#3498db;
-color:white;
-width:100%;
-margin-top:8px;
-}
-
-.statusBay{
-color:#27ae60;
-font-weight:bold;
-}
-
-.statusChua{
-color:#e67e22;
-font-weight:bold;
-}
-
-.popup{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
-display:none;
-align-items:center;
-justify-content:center;
-}
-
-.popupBox{
-background:white;
-padding:20px;
-border-radius:12px;
-width:80%;
-max-width:300px;
-text-align:center;
-}
-
-.popup button{
-margin-top:10px;
-width:100%;
-}
-
-.cancel{
-background:#bdc3c7;
-}
-
-.confirm{
-background:#e74c3c;
-color:white;
+margin-top:5px;
 }
 
 </style>
@@ -150,216 +60,197 @@ color:white;
 
 <body>
 
-<div class="container">
+<h1>💼 Quản lý giao dịch</h1>
 
-<h2><i class="fa-solid fa-wallet"></i> Quản lý giao dịch</h2>
-
-<div class="summary">
-<i class="fa-solid fa-coins"></i> Tổng vốn: <b id="tongVon">0</b><br>
-<i class="fa-solid fa-chart-line"></i> Tổng lãi: <b id="tongLai">0</b>
+<div class="card">
+<p>💰 Tổng vốn: <b id="tongVon">0</b></p>
+<p>📈 Tổng lãi: <b id="tongLai">0</b></p>
 </div>
 
-<div class="summary" id="thongKeAcc">
-<b>📊 Thống kê theo acc</b>
+<div class="card">
+<h3>👥 Vốn & Lãi mỗi người</h3>
+<div id="nguoiStats"></div>
+</div>
+
+<div class="card">
+<h3>📊 Thống kê theo acc</h3>
+<div id="accStats"></div>
 </div>
 
 <div class="card">
 
-<div class="inputBox">
-<i class="fa-solid fa-key"></i>
-<input id="maAcc" placeholder="Mã acc">
-</div>
+<input id="acc" placeholder="🔑 Mã acc">
 
-<div class="inputBox">
-<i class="fa-solid fa-coins"></i>
-<input id="von" type="number" placeholder="Vốn">
-</div>
+<input id="von" type="number" placeholder="💰 Vốn">
 
-<div class="inputBox">
-<i class="fa-solid fa-chart-line"></i>
-<input id="lai" type="number" placeholder="Lãi">
-</div>
+<input id="lai" type="number" placeholder="📈 Lãi">
 
-<div class="inputBox">
-<i class="fa-solid fa-calendar"></i>
-<input id="ngayThu" type="date">
-</div>
-
-<select id="trangThai">
-<option value="Chưa bay">Chưa bay</option>
-<option value="Đã bay">Đã bay</option>
+<select id="status">
+<option value="chua">Chưa bay</option>
+<option value="bay">Đã bay</option>
 </select>
 
-<button class="addBtn" onclick="them()">
-<i class="fa-solid fa-plus"></i> Thêm giao dịch
-</button>
+<button onclick="them()">➕ Thêm giao dịch</button>
 
 </div>
 
+<div class="card">
+<h3>📜 Danh sách giao dịch</h3>
 <div id="list"></div>
-
-</div>
-
-<div class="popup" id="popup">
-<div class="popupBox">
-
-<h3>Xác nhận xoá</h3>
-<p>Bạn chắc chắn muốn xoá?</p>
-
-<button class="confirm" onclick="xacNhanXoa()">Xoá</button>
-<button class="cancel" onclick="dongPopup()">Huỷ</button>
-
-</div>
 </div>
 
 <script>
 
-let data=JSON.parse(localStorage.getItem("giaodich"))||[]
-let indexXoa=null
+let transactions = JSON.parse(localStorage.getItem("data")) || []
 
 function save(){
-localStorage.setItem("giaodich",JSON.stringify(data))
+localStorage.setItem("data",JSON.stringify(transactions))
+}
+
+function them(){
+
+let acc = document.getElementById("acc").value
+let von = Number(document.getElementById("von").value)
+let lai = Number(document.getElementById("lai").value)
+let status = document.getElementById("status").value
+
+let ngayBay = null
+
+if(status === "bay"){
+ngayBay = new Date().toLocaleString()
+}
+
+transactions.push({
+acc,
+von,
+lai,
+status,
+ngayBay
+})
+
+save()
+render()
+
+}
+
+function xoa(i){
+
+transactions.splice(i,1)
+
+save()
+render()
+
+}
+
+function doiTrangThai(i){
+
+if(transactions[i].status === "chua"){
+
+transactions[i].status = "bay"
+transactions[i].ngayBay = new Date().toLocaleString()
+
+}
+
+save()
+render()
+
 }
 
 function render(){
 
-let list=document.getElementById("list")
-list.innerHTML=""
+let tongVon = 0
+let tongLai = 0
 
-let tongVon=0
-let tongLai=0
+let accStats = {}
+let nguoiStats = {}
 
-data.forEach((g,i)=>{
+transactions.forEach(t=>{
 
-tongVon+=Number(g.von)
+tongVon += t.von
 
-if(g.trangThai=="Đã bay"){
-tongLai+=Number(g.lai)
+if(!accStats[t.acc]){
+accStats[t.acc] = {von:0,lai:0}
 }
 
-list.innerHTML+=`
+accStats[t.acc].von += t.von
 
-<div class="card">
-
-<b>Mã acc:</b> ${g.maAcc}<br>
-<b>Vốn:</b> ${g.von}<br>
-<b>Lãi:</b> ${g.lai}<br>
-<b>Ngày thu:</b> ${g.ngay}<br>
-
-<b>Trạng thái:</b>
-<span class="${g.trangThai=='Đã bay'?'statusBay':'statusChua'}">
-${g.trangThai}
-</span>
-
-${g.trangThai=="Chưa bay"
-? `<button class="bayBtn" onclick="bay(${i})">🚀 Đánh dấu đã bay</button>`
-: `<br><b>Ngày bay:</b> ${g.ngayBay}`
+if(t.status === "bay"){
+tongLai += t.lai
+accStats[t.acc].lai += t.lai
 }
 
-<button class="deleteBtn" onclick="hienPopup(${i})">
-<i class="fa-solid fa-trash"></i> Xoá
-</button>
+if(!nguoiStats[t.acc]){
+nguoiStats[t.acc] = {von:0,lai:0}
+}
+
+nguoiStats[t.acc].von += t.von
+
+if(t.status === "bay"){
+nguoiStats[t.acc].lai += t.lai
+}
+
+})
+
+document.getElementById("tongVon").innerText = tongVon
+document.getElementById("tongLai").innerText = tongLai
+
+
+let htmlAcc = ""
+
+for(let acc in accStats){
+
+htmlAcc += `
+<div class="item">
+<b>Acc ${acc}</b><br>
+💰 Vốn: ${accStats[acc].von}<br>
+📈 Lãi: ${accStats[acc].lai}
+</div>
+`
+
+}
+
+document.getElementById("accStats").innerHTML = htmlAcc
+
+
+let htmlNguoi = ""
+
+for(let acc in nguoiStats){
+
+htmlNguoi += `
+<div class="item">
+<b>${acc}</b><br>
+💰 Vốn: ${nguoiStats[acc].von}<br>
+📈 Lãi: ${nguoiStats[acc].lai}
+</div>
+`
+
+}
+
+document.getElementById("nguoiStats").innerHTML = htmlNguoi
+
+
+let html = ""
+
+transactions.forEach((t,i)=>{
+
+html += `
+<div class="item">
+
+<b>Mã acc:</b> ${t.acc}<br>
+💰 Vốn: ${t.von}<br>
+📈 Lãi: ${t.lai}<br>
+📊 Trạng thái: ${t.status === "bay" ? "✈️ Đã bay" : "⌛ Chưa bay"}<br>
+📅 Ngày bay: ${t.ngayBay || "-"}
+
+<button onclick="doiTrangThai(${i})">✈️ Đổi thành đã bay</button>
+<button class="delete" onclick="xoa(${i})">🗑 Xoá</button>
 
 </div>
 `
 
 })
 
-document.getElementById("tongVon").innerText=tongVon
-document.getElementById("tongLai").innerText=tongLai
-
-let accStats={}
-
-data.forEach(g=>{
-
-if(!accStats[g.maAcc]){
-accStats[g.maAcc]={von:0,lai:0}
-}
-
-accStats[g.maAcc].von+=Number(g.von)
-
-if(g.trangThai=="Đã bay"){
-accStats[g.maAcc].lai+=Number(g.lai)
-}
-
-})
-
-let html="<b>📊 Thống kê theo acc</b><br><br>"
-
-for(let acc in accStats){
-
-html+=`
-<b>Acc ${acc}</b><br>
-💰 Vốn: ${accStats[acc].von}<br>
-📈 Lãi: ${accStats[acc].lai}<br><br>
-`
-
-}
-
-document.getElementById("thongKeAcc").innerHTML=html
-
-}
-
-function them(){
-
-let maAcc=document.getElementById("maAcc").value
-let von=document.getElementById("von").value
-let lai=document.getElementById("lai").value
-let ngay=document.getElementById("ngayThu").value
-let trangThai=document.getElementById("trangThai").value
-
-if(maAcc==""||von==""){
-alert("Thiếu thông tin")
-return
-}
-
-data.push({
-maAcc,
-von,
-lai,
-ngay,
-trangThai,
-ngayBay:""
-})
-
-save()
-render()
-
-document.getElementById("maAcc").value=""
-document.getElementById("von").value=""
-document.getElementById("lai").value=""
-document.getElementById("ngayThu").value=""
-
-}
-
-function bay(i){
-
-data[i].trangThai="Đã bay"
-
-data[i].ngayBay=new Date().toISOString().split("T")[0]
-
-save()
-render()
-
-}
-
-function hienPopup(i){
-indexXoa=i
-document.getElementById("popup").style.display="flex"
-}
-
-function dongPopup(){
-document.getElementById("popup").style.display="none"
-}
-
-function xacNhanXoa(){
-
-data.splice(indexXoa,1)
-
-save()
-render()
-
-dongPopup()
+document.getElementById("list").innerHTML = html
 
 }
 
