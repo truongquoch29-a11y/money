@@ -29,30 +29,52 @@ background:white;
 padding:16px;
 border-radius:14px;
 margin-bottom:15px;
-box-shadow:0 3px 8px rgba(0,0,0,0.08);
+box-shadow:0 3px 10px rgba(0,0,0,0.08);
 }
 
-.stat{
+/* ===== Stats ===== */
+
+.stat-card{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.stat-box{
+background:#f8fafc;
+padding:14px;
+border-radius:12px;
 display:flex;
 justify-content:space-between;
-padding:6px 0;
-font-size:16px;
+align-items:center;
+font-weight:600;
 }
 
 .section-title{
-font-weight:bold;
-margin-bottom:10px;
+font-weight:700;
 font-size:18px;
+margin-bottom:12px;
 }
 
 .person{
-padding:10px;
-border-bottom:1px solid #eee;
+background:#f9fafb;
+padding:12px;
+border-radius:12px;
+margin-bottom:10px;
 }
 
-.person:last-child{
-border:none;
+.person-name{
+font-weight:700;
+margin-bottom:6px;
 }
+
+.stat-row{
+display:flex;
+justify-content:space-between;
+padding:3px 0;
+}
+
+/* ===== Form ===== */
 
 input,select{
 width:100%;
@@ -77,6 +99,7 @@ font-weight:bold;
 
 .delete{
 background:#e74c3c;
+margin-top:6px;
 }
 
 .fly{
@@ -98,14 +121,18 @@ padding:10px 0;
 
 <div class="card">
 
-<div class="stat">
+<div class="stat-card">
+
+<div class="stat-box">
 <span>💰 Tổng vốn</span>
 <b id="tongVon">0</b>
 </div>
 
-<div class="stat">
+<div class="stat-box">
 <span>📈 Tổng lãi</span>
 <b id="tongLai">0</b>
+</div>
+
 </div>
 
 </div>
@@ -130,9 +157,9 @@ padding:10px 0;
 
 <input id="acc" placeholder="🔑 Mã acc">
 
-<input id="von" type="number" placeholder="💰 Vốn">
+<input id="von" type="number" placeholder="💰 Vốn (vd: 200 = 200000)">
 
-<input id="lai" type="number" placeholder="📈 Lãi">
+<input id="lai" type="number" placeholder="📈 Lãi (vd: 50 = 50000)">
 
 <select id="status">
 <option value="chua">⌛ Chưa bay</option>
@@ -159,17 +186,24 @@ function save(){
 localStorage.setItem("data",JSON.stringify(transactions))
 }
 
+/* thêm 3 số 0 */
+function convertMoney(num){
+return Number(num) * 1000
+}
+
 function them(){
 
 let acc=document.getElementById("acc").value.trim()
-let von=Number(document.getElementById("von").value)
-let lai=Number(document.getElementById("lai").value)
+let von=convertMoney(document.getElementById("von").value)
+let lai=convertMoney(document.getElementById("lai").value)
 let status=document.getElementById("status").value
 
 if(!acc){
 alert("Vui lòng nhập mã acc")
 return
 }
+
+/* check trùng acc */
 
 if(transactions.some(t=>t.acc===acc)){
 alert("⚠️ Mã acc đã tồn tại!")
@@ -262,37 +296,67 @@ nguoiStats[t.acc].lai+=t.lai
 document.getElementById("tongVon").innerText=tongVon
 document.getElementById("tongLai").innerText=tongLai
 
+/* stats người */
+
 let htmlNguoi=""
 
 for(let acc in nguoiStats){
 
 htmlNguoi+=`
+
 <div class="person">
-<b>${acc}</b>
-<div class="stat"><span>💰 Vốn</span><span>${nguoiStats[acc].von}</span></div>
-<div class="stat"><span>📈 Lãi</span><span>${nguoiStats[acc].lai}</span></div>
+
+<div class="person-name">${acc}</div>
+
+<div class="stat-row">
+<span>💰 Vốn</span>
+<span>${nguoiStats[acc].von}</span>
 </div>
+
+<div class="stat-row">
+<span>📈 Lãi</span>
+<span>${nguoiStats[acc].lai}</span>
+</div>
+
+</div>
+
 `
 
 }
 
 document.getElementById("nguoiStats").innerHTML=htmlNguoi
 
+/* stats acc */
+
 let htmlAcc=""
 
 for(let acc in accStats){
 
 htmlAcc+=`
+
 <div class="person">
-<b>Acc ${acc}</b>
-<div class="stat"><span>💰 Vốn</span><span>${accStats[acc].von}</span></div>
-<div class="stat"><span>📈 Lãi</span><span>${accStats[acc].lai}</span></div>
+
+<div class="person-name">Acc ${acc}</div>
+
+<div class="stat-row">
+<span>💰 Vốn</span>
+<span>${accStats[acc].von}</span>
 </div>
+
+<div class="stat-row">
+<span>📈 Lãi</span>
+<span>${accStats[acc].lai}</span>
+</div>
+
+</div>
+
 `
 
 }
 
 document.getElementById("accStats").innerHTML=htmlAcc
+
+/* list */
 
 let html=""
 
