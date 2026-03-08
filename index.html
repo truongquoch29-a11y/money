@@ -2,119 +2,279 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Quản lý acc</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quản lý giao dịch</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-body{font-family:Arial;background:#f2f2f2;padding:20px}
-table{border-collapse:collapse;width:100%;background:white}
-th,td{border:1px solid #ccc;padding:8px;text-align:center}
-input,select{padding:4px}
-button{padding:8px 12px;margin-bottom:10px;cursor:pointer}
-.total{margin-top:20px;font-size:18px}
-.xoa{background:#ff4d4d;color:white;border:none;padding:5px 10px;cursor:pointer}
+
+body{
+font-family:Arial;
+background:#f4f6fb;
+margin:0;
+padding:10px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+}
+
+h2{
+text-align:center;
+}
+
+.summary{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:10px;
+box-shadow:0 3px 8px rgba(0,0,0,0.1);
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:10px;
+box-shadow:0 3px 8px rgba(0,0,0,0.1);
+animation:fade .3s;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(10px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin:5px 0;
+font-size:16px;
+border-radius:8px;
+border:1px solid #ddd;
+}
+
+button{
+border:none;
+padding:12px;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
+}
+
+.addBtn{
+background:#2ecc71;
+color:white;
+width:100%;
+}
+
+.deleteBtn{
+background:#e74c3c;
+color:white;
+width:100%;
+margin-top:8px;
+}
+
+.statusBay{
+color:#27ae60;
+font-weight:bold;
+}
+
+.statusChua{
+color:#e67e22;
+font-weight:bold;
+}
+
+.popup{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+display:none;
+align-items:center;
+justify-content:center;
+}
+
+.popupBox{
+background:white;
+padding:20px;
+border-radius:12px;
+width:80%;
+max-width:300px;
+text-align:center;
+animation:zoom .2s;
+}
+
+@keyframes zoom{
+from{transform:scale(.7)}
+to{transform:scale(1)}
+}
+
+.popup button{
+margin-top:10px;
+width:100%;
+}
+
+.cancel{
+background:#bdc3c7;
+}
+
+.confirm{
+background:#e74c3c;
+color:white;
+}
+
 </style>
 </head>
 
 <body>
 
-<h2>Quản lý vốn và acc</h2>
+<div class="container">
 
-<button onclick="addRow()">Thêm giao dịch</button>
+<h2><i class="fa-solid fa-wallet"></i> Quản lý giao dịch</h2>
 
-<table id="table">
-<thead>
-<tr>
-<th>Mã acc</th>
-<th>Ngày thu</th>
-<th>Trạng thái</th>
-<th>Giá vốn</th>
-<th>Giá bán</th>
-<th>Lãi</th>
-<th>Lãi mỗi người</th>
-<th>Xoá</th>
-</tr>
-</thead>
+<div class="summary">
+<i class="fa-solid fa-coins"></i> Tổng vốn: <b id="tongVon">0</b><br>
+<i class="fa-solid fa-chart-line"></i> Tổng lãi: <b id="tongLai">0</b>
+</div>
 
-<tbody></tbody>
-</table>
+<div class="card">
 
-<div class="total">
-<p>Tổng vốn: <span id="tongvon">0</span></p>
-<p>Tổng bán: <span id="tongban">0</span></p>
-<p>Tổng lãi: <span id="tonglai">0</span></p>
-<p>Lãi mỗi người: <span id="laimoinguoi">0</span></p>
+<input id="maAcc" placeholder="🔑 Mã acc">
+
+<input id="von" type="number" placeholder="💰 Vốn">
+
+<input id="lai" type="number" placeholder="📈 Lãi">
+
+<input id="ngayThu" type="date">
+
+<select id="trangThai">
+<option value="Chưa bay">⏳ Chưa bay</option>
+<option value="Đã bay">🚀 Đã bay</option>
+</select>
+
+<button class="addBtn" onclick="them()">
+<i class="fa-solid fa-plus"></i> Thêm giao dịch
+</button>
+
+</div>
+
+<div id="list"></div>
+
+</div>
+
+
+<div class="popup" id="popup">
+<div class="popupBox">
+
+<h3>Xác nhận xoá</h3>
+<p>Bạn chắc chắn muốn xoá?</p>
+
+<button class="confirm" onclick="xacNhanXoa()">Xoá</button>
+<button class="cancel" onclick="dongPopup()">Huỷ</button>
+
+</div>
 </div>
 
 <script>
 
-const tbody=document.querySelector("#table tbody")
+let data=JSON.parse(localStorage.getItem("giaodich"))||[]
+let indexXoa=null
 
-function addRow(){
+function save(){
+localStorage.setItem("giaodich",JSON.stringify(data))
+}
 
-const row=document.createElement("tr")
+function render(){
 
-row.innerHTML=`
-<td><input placeholder="ACC001"></td>
-<td><input type="date"></td>
+let list=document.getElementById("list")
+list.innerHTML=""
 
-<td>
-<select>
-<option>Chưa bán</option>
-<option>Đã bán</option>
-<option>Đã bay</option>
-</select>
-</td>
+let tongVon=0
+let tongLai=0
 
-<td><input type="number"></td>
-<td><input type="number"></td>
+data.forEach((g,i)=>{
 
-<td class="lai">0</td>
-<td class="chia">0</td>
+tongVon+=Number(g.von)
+tongLai+=Number(g.lai)
 
-<td><button class="xoa">X</button></td>
+list.innerHTML+=`
+
+<div class="card">
+
+<b>🔑 Mã acc:</b> ${g.maAcc}<br>
+<b>💰 Vốn:</b> ${g.von}<br>
+<b>📈 Lãi:</b> ${g.lai}<br>
+<b>📅 Ngày thu:</b> ${g.ngay}<br>
+<b>Trạng thái:</b>
+<span class="${g.trangThai=='Đã bay'?'statusBay':'statusChua'}">
+${g.trangThai}
+</span>
+
+<button class="deleteBtn" onclick="hienPopup(${i})">
+<i class="fa-solid fa-trash"></i> Xoá
+</button>
+
+</div>
 `
 
-tbody.appendChild(row)
-
-row.querySelectorAll("input").forEach(i=>{
-i.addEventListener("input",tinh)
 })
 
-row.querySelector(".xoa").onclick=function(){
-row.remove()
-tinh()
-}
+document.getElementById("tongVon").innerText=tongVon
+document.getElementById("tongLai").innerText=tongLai
 
 }
 
-function tinh(){
+function them(){
 
-let tongvon=0
-let tongban=0
-let tonglai=0
+let maAcc=document.getElementById("maAcc").value
+let von=document.getElementById("von").value
+let lai=document.getElementById("lai").value
+let ngay=document.getElementById("ngayThu").value
+let trangThai=document.getElementById("trangThai").value
 
-document.querySelectorAll("#table tbody tr").forEach(row=>{
+if(maAcc==""||von==""){
+alert("Thiếu thông tin")
+return
+}
 
-let von=Number(row.cells[3].querySelector("input").value)||0
-let ban=Number(row.cells[4].querySelector("input").value)||0
+data.push({maAcc,von,lai,ngay,trangThai})
 
-let lai=ban-von
+save()
+render()
 
-row.cells[5].innerText=lai
-row.cells[6].innerText=lai/2
-
-tongvon+=von
-tongban+=ban
-tonglai+=lai
-
-})
-
-document.getElementById("tongvon").innerText=tongvon
-document.getElementById("tongban").innerText=tongban
-document.getElementById("tonglai").innerText=tonglai
-document.getElementById("laimoinguoi").innerText=tonglai/2
+maAcc.value=""
+von.value=""
+lai.value=""
 
 }
+
+function hienPopup(i){
+indexXoa=i
+document.getElementById("popup").style.display="flex"
+}
+
+function dongPopup(){
+document.getElementById("popup").style.display="none"
+}
+
+function xacNhanXoa(){
+
+data.splice(indexXoa,1)
+
+save()
+render()
+
+dongPopup()
+
+}
+
+render()
 
 </script>
 
