@@ -2,17 +2,14 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Tính vốn và lãi</title>
+<title>Quản lý acc</title>
 
 <style>
+
 body{
-font-family: Arial, sans-serif;
+font-family:Arial;
 background:#f2f2f2;
 padding:20px;
-}
-
-h2{
-margin-bottom:10px;
 }
 
 table{
@@ -27,8 +24,7 @@ padding:8px;
 text-align:center;
 }
 
-input{
-width:100px;
+input,select{
 padding:4px;
 }
 
@@ -42,64 +38,116 @@ cursor:pointer;
 margin-top:20px;
 font-size:18px;
 }
+
 </style>
 </head>
 
 <body>
 
-<h2>Công cụ tính vốn - bán - lãi</h2>
+<h2>Quản lý vốn và acc</h2>
 
 <button onclick="addRow()">Thêm giao dịch</button>
 
 <table id="table">
+
 <thead>
+
 <tr>
-<th>Acc</th>
+<th>Mã acc</th>
+<th>Ngày thu</th>
+<th>Trạng thái</th>
 <th>Giá vốn</th>
 <th>Giá bán</th>
 <th>Lãi</th>
 <th>Lãi mỗi người</th>
 </tr>
+
 </thead>
+
 <tbody>
 </tbody>
+
 </table>
 
 <div class="total">
+
 <p>Tổng vốn: <span id="tongvon">0</span></p>
 <p>Tổng bán: <span id="tongban">0</span></p>
 <p>Tổng lãi: <span id="tonglai">0</span></p>
 <p>Lãi mỗi người: <span id="laimoinguoi">0</span></p>
+
 </div>
 
 <script>
 
-function addRow(){
-
 const tbody=document.querySelector("#table tbody")
+
+function addRow(){
 
 const row=document.createElement("tr")
 
 row.innerHTML=`
-<td><input></td>
-<td><input type="number" oninput="tinh()"></td>
-<td><input type="number" oninput="tinh()"></td>
+
+<td><input placeholder="ACC001"></td>
+
+<td><input type="date"></td>
+
+<td>
+<select>
+<option>Chưa bán</option>
+<option>Đã bán</option>
+<option>Đã bay</option>
+</select>
+</td>
+
+<td><input type="number"></td>
+
+<td><input type="number"></td>
+
 <td class="lai">0</td>
+
 <td class="chia">0</td>
+
 `
 
 tbody.appendChild(row)
+
+row.querySelectorAll("input").forEach(i=>{
+i.addEventListener("input",tinh)
+})
 
 }
 
 function tinh(){
 
-const rows=document.querySelectorAll("#table tbody tr")
-
 let tongvon=0
 let tongban=0
 let tonglai=0
 
-rows.forEach(row=>{
+document.querySelectorAll("#table tbody tr").forEach(row=>{
 
-let von=row.cells[1].children[0].value
+let von=Number(row.cells[3].querySelector("input").value)||0
+let ban=Number(row.cells[4].querySelector("input").value)||0
+
+let lai=ban-von
+
+row.cells[5].innerText=lai
+row.cells[6].innerText=lai/2
+
+tongvon+=von
+tongban+=ban
+tonglai+=lai
+
+})
+
+document.getElementById("tongvon").innerText=tongvon
+document.getElementById("tongban").innerText=tongban
+document.getElementById("tonglai").innerText=tonglai
+document.getElementById("laimoinguoi").innerText=tonglai/2
+
+}
+
+</script>
+
+</body>
+</html>
