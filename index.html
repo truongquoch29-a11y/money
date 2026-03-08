@@ -40,12 +40,6 @@ padding:15px;
 border-radius:12px;
 margin-bottom:10px;
 box-shadow:0 3px 8px rgba(0,0,0,0.1);
-animation:fade .3s;
-}
-
-@keyframes fade{
-from{opacity:0;transform:translateY(10px)}
-to{opacity:1;transform:translateY(0)}
 }
 
 .inputBox{
@@ -61,25 +55,21 @@ background:white;
 .inputBox i{
 margin-right:10px;
 color:#888;
-font-size:18px;
 }
 
 .inputBox input{
 border:none;
 outline:none;
-font-size:16px;
 flex:1;
-background:transparent;
+font-size:16px;
 }
 
 select{
 width:100%;
 padding:10px;
-margin:6px 0;
-font-size:16px;
 border-radius:10px;
 border:1px solid #ddd;
-background:white;
+margin:6px 0;
 }
 
 button{
@@ -94,7 +84,6 @@ cursor:pointer;
 background:#2ecc71;
 color:white;
 width:100%;
-margin-top:5px;
 }
 
 .deleteBtn{
@@ -140,12 +129,6 @@ border-radius:12px;
 width:80%;
 max-width:300px;
 text-align:center;
-animation:zoom .2s;
-}
-
-@keyframes zoom{
-from{transform:scale(.7)}
-to{transform:scale(1)}
 }
 
 .popup button{
@@ -174,6 +157,10 @@ color:white;
 <div class="summary">
 <i class="fa-solid fa-coins"></i> Tổng vốn: <b id="tongVon">0</b><br>
 <i class="fa-solid fa-chart-line"></i> Tổng lãi: <b id="tongLai">0</b>
+</div>
+
+<div class="summary" id="thongKeAcc">
+<b>📊 Thống kê theo acc</b>
 </div>
 
 <div class="card">
@@ -280,6 +267,36 @@ ${g.trangThai=="Chưa bay"
 
 document.getElementById("tongVon").innerText=tongVon
 document.getElementById("tongLai").innerText=tongLai
+
+let accStats={}
+
+data.forEach(g=>{
+
+if(!accStats[g.maAcc]){
+accStats[g.maAcc]={von:0,lai:0}
+}
+
+accStats[g.maAcc].von+=Number(g.von)
+
+if(g.trangThai=="Đã bay"){
+accStats[g.maAcc].lai+=Number(g.lai)
+}
+
+})
+
+let html="<b>📊 Thống kê theo acc</b><br><br>"
+
+for(let acc in accStats){
+
+html+=`
+<b>Acc ${acc}</b><br>
+💰 Vốn: ${accStats[acc].von}<br>
+📈 Lãi: ${accStats[acc].lai}<br><br>
+`
+
+}
+
+document.getElementById("thongKeAcc").innerHTML=html
 
 }
 
