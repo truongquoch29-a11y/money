@@ -3,56 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Quản lý giao dịch</title>
 
 <style>
 
+*{
+box-sizing:border-box;
+}
+
 body{
 font-family:Arial;
-background:#f2f2f2;
+background:#f4f6f8;
 margin:0;
-padding:20px;
+padding:15px;
 }
 
 h1{
 text-align:center;
+margin-bottom:20px;
 }
 
 .card{
 background:white;
-padding:15px;
+padding:16px;
+border-radius:14px;
 margin-bottom:15px;
-border-radius:10px;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
+box-shadow:0 3px 8px rgba(0,0,0,0.08);
+}
+
+.stat{
+display:flex;
+justify-content:space-between;
+padding:6px 0;
+font-size:16px;
+}
+
+.section-title{
+font-weight:bold;
+margin-bottom:10px;
+font-size:18px;
+}
+
+.person{
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+.person:last-child{
+border:none;
 }
 
 input,select{
 width:100%;
-padding:10px;
+padding:12px;
 margin-top:10px;
-border-radius:8px;
-border:1px solid #ccc;
+border-radius:10px;
+border:1px solid #ddd;
+font-size:16px;
 }
 
 button{
 width:100%;
-padding:12px;
-margin-top:10px;
+padding:13px;
+margin-top:12px;
 border:none;
-border-radius:8px;
+border-radius:10px;
 background:#2ecc71;
 color:white;
 font-size:16px;
+font-weight:bold;
+}
+
+.delete{
+background:#e74c3c;
+}
+
+.fly{
+background:#3498db;
+margin-top:6px;
 }
 
 .item{
 border-bottom:1px solid #eee;
 padding:10px 0;
-}
-
-.delete{
-background:#e74c3c;
-margin-top:5px;
 }
 
 </style>
@@ -63,18 +97,33 @@ margin-top:5px;
 <h1>💼 Quản lý giao dịch</h1>
 
 <div class="card">
-<p>💰 Tổng vốn: <b id="tongVon">0</b></p>
-<p>📈 Tổng lãi: <b id="tongLai">0</b></p>
+
+<div class="stat">
+<span>💰 Tổng vốn</span>
+<b id="tongVon">0</b>
+</div>
+
+<div class="stat">
+<span>📈 Tổng lãi</span>
+<b id="tongLai">0</b>
+</div>
+
 </div>
 
 <div class="card">
-<h3>👥 Vốn & Lãi mỗi người</h3>
+
+<div class="section-title">👥 Vốn & Lãi mỗi người</div>
+
 <div id="nguoiStats"></div>
+
 </div>
 
 <div class="card">
-<h3>📊 Thống kê theo acc</h3>
+
+<div class="section-title">📊 Thống kê theo acc</div>
+
 <div id="accStats"></div>
+
 </div>
 
 <div class="card">
@@ -86,8 +135,8 @@ margin-top:5px;
 <input id="lai" type="number" placeholder="📈 Lãi">
 
 <select id="status">
-<option value="chua">Chưa bay</option>
-<option value="bay">Đã bay</option>
+<option value="chua">⌛ Chưa bay</option>
+<option value="bay">✈️ Đã bay</option>
 </select>
 
 <button onclick="them()">➕ Thêm giao dịch</button>
@@ -95,8 +144,11 @@ margin-top:5px;
 </div>
 
 <div class="card">
-<h3>📜 Danh sách giao dịch</h3>
+
+<div class="section-title">📜 Danh sách giao dịch</div>
+
 <div id="list"></div>
+
 </div>
 
 <script>
@@ -109,15 +161,25 @@ localStorage.setItem("data",JSON.stringify(transactions))
 
 function them(){
 
-let acc = document.getElementById("acc").value
-let von = Number(document.getElementById("von").value)
-let lai = Number(document.getElementById("lai").value)
-let status = document.getElementById("status").value
+let acc=document.getElementById("acc").value.trim()
+let von=Number(document.getElementById("von").value)
+let lai=Number(document.getElementById("lai").value)
+let status=document.getElementById("status").value
 
-let ngayBay = null
+if(!acc){
+alert("Vui lòng nhập mã acc")
+return
+}
 
-if(status === "bay"){
-ngayBay = new Date().toLocaleString()
+if(transactions.some(t=>t.acc===acc)){
+alert("⚠️ Mã acc đã tồn tại!")
+return
+}
+
+let ngayBay=null
+
+if(status==="bay"){
+ngayBay=new Date().toLocaleString()
 }
 
 transactions.push({
@@ -131,9 +193,15 @@ ngayBay
 save()
 render()
 
+document.getElementById("acc").value=""
+document.getElementById("von").value=""
+document.getElementById("lai").value=""
+
 }
 
 function xoa(i){
+
+if(!confirm("Xoá giao dịch này?")) return
 
 transactions.splice(i,1)
 
@@ -144,10 +212,10 @@ render()
 
 function doiTrangThai(i){
 
-if(transactions[i].status === "chua"){
+if(transactions[i].status==="chua"){
 
-transactions[i].status = "bay"
-transactions[i].ngayBay = new Date().toLocaleString()
+transactions[i].status="bay"
+transactions[i].ngayBay=new Date().toLocaleString()
 
 }
 
@@ -158,99 +226,99 @@ render()
 
 function render(){
 
-let tongVon = 0
-let tongLai = 0
+let tongVon=0
+let tongLai=0
 
-let accStats = {}
-let nguoiStats = {}
+let accStats={}
+let nguoiStats={}
 
 transactions.forEach(t=>{
 
-tongVon += t.von
+tongVon+=t.von
 
 if(!accStats[t.acc]){
-accStats[t.acc] = {von:0,lai:0}
+accStats[t.acc]={von:0,lai:0}
 }
 
-accStats[t.acc].von += t.von
+accStats[t.acc].von+=t.von
 
-if(t.status === "bay"){
-tongLai += t.lai
-accStats[t.acc].lai += t.lai
+if(t.status==="bay"){
+tongLai+=t.lai
+accStats[t.acc].lai+=t.lai
 }
 
 if(!nguoiStats[t.acc]){
-nguoiStats[t.acc] = {von:0,lai:0}
+nguoiStats[t.acc]={von:0,lai:0}
 }
 
-nguoiStats[t.acc].von += t.von
+nguoiStats[t.acc].von+=t.von
 
-if(t.status === "bay"){
-nguoiStats[t.acc].lai += t.lai
+if(t.status==="bay"){
+nguoiStats[t.acc].lai+=t.lai
 }
 
 })
 
-document.getElementById("tongVon").innerText = tongVon
-document.getElementById("tongLai").innerText = tongLai
+document.getElementById("tongVon").innerText=tongVon
+document.getElementById("tongLai").innerText=tongLai
 
-
-let htmlAcc = ""
-
-for(let acc in accStats){
-
-htmlAcc += `
-<div class="item">
-<b>Acc ${acc}</b><br>
-💰 Vốn: ${accStats[acc].von}<br>
-📈 Lãi: ${accStats[acc].lai}
-</div>
-`
-
-}
-
-document.getElementById("accStats").innerHTML = htmlAcc
-
-
-let htmlNguoi = ""
+let htmlNguoi=""
 
 for(let acc in nguoiStats){
 
-htmlNguoi += `
-<div class="item">
-<b>${acc}</b><br>
-💰 Vốn: ${nguoiStats[acc].von}<br>
-📈 Lãi: ${nguoiStats[acc].lai}
+htmlNguoi+=`
+<div class="person">
+<b>${acc}</b>
+<div class="stat"><span>💰 Vốn</span><span>${nguoiStats[acc].von}</span></div>
+<div class="stat"><span>📈 Lãi</span><span>${nguoiStats[acc].lai}</span></div>
 </div>
 `
 
 }
 
-document.getElementById("nguoiStats").innerHTML = htmlNguoi
+document.getElementById("nguoiStats").innerHTML=htmlNguoi
 
+let htmlAcc=""
 
-let html = ""
+for(let acc in accStats){
+
+htmlAcc+=`
+<div class="person">
+<b>Acc ${acc}</b>
+<div class="stat"><span>💰 Vốn</span><span>${accStats[acc].von}</span></div>
+<div class="stat"><span>📈 Lãi</span><span>${accStats[acc].lai}</span></div>
+</div>
+`
+
+}
+
+document.getElementById("accStats").innerHTML=htmlAcc
+
+let html=""
 
 transactions.forEach((t,i)=>{
 
-html += `
+html+=`
+
 <div class="item">
 
 <b>Mã acc:</b> ${t.acc}<br>
 💰 Vốn: ${t.von}<br>
 📈 Lãi: ${t.lai}<br>
-📊 Trạng thái: ${t.status === "bay" ? "✈️ Đã bay" : "⌛ Chưa bay"}<br>
-📅 Ngày bay: ${t.ngayBay || "-"}
+📊 Trạng thái: ${t.status==="bay"?"✈️ Đã bay":"⌛ Chưa bay"}<br>
+📅 Ngày bay: ${t.ngayBay||"-"}
 
-<button onclick="doiTrangThai(${i})">✈️ Đổi thành đã bay</button>
+<button class="fly" onclick="doiTrangThai(${i})">✈️ Đổi thành đã bay</button>
+
 <button class="delete" onclick="xoa(${i})">🗑 Xoá</button>
 
 </div>
+
 `
 
 })
 
-document.getElementById("list").innerHTML = html
+document.getElementById("list").innerHTML=html
 
 }
 
